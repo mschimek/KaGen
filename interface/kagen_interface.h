@@ -18,8 +18,8 @@
 
 //#include "geometric/delaunay/delaunay_2d.h"
 //#include "geometric/delaunay/delaunay_3d.h"
-#include "geometric/rgg/rgg_2d.h"
-#include "geometric/rgg/rgg_3d.h"
+//#include "geometric/rgg/rgg_2d.h"
+//#include "geometric/rgg/rgg_3d.h"
 #include "gnm/gnm_directed.h"
 #include "gnm/gnm_undirected.h"
 #include "gnp/gnp_directed.h"
@@ -99,6 +99,39 @@ class KaGen {
     return edges;
   }
 
+  template <typename WeightGen,
+            typename EdgeList = std::vector<typename WeightGen::EdgeType>>
+  std::pair<EdgeList, std::pair<SInt, SInt>> GenerateUndirectedGNM(
+      WeightGen &&weight_gen, SInt n, SInt m, SInt k = 0, SInt seed = 1,
+      const std::string &output = "out", bool self_loops = false) {
+    std::pair<EdgeList, std::pair<SInt, SInt>> result;
+    // auto& [edges, vertex_range] = result; // cannot use this one as edges is
+    // not a variable but reference name and lambda cpatures to it (error with
+    // clang)
+    auto &edges = result.first;
+    auto &vertex_range = result.second;
+
+    // Update config
+    config_.n = n;
+    config_.m = m;
+    config_.k = (k == 0 ? config_.k : k);
+    config_.seed = seed;
+    config_.output_file = output;
+    config_.self_loops = self_loops;
+
+    // Edge callback
+    auto edge_cb = [&](SInt source, SInt target) {
+      edges.emplace_back(source, target, weight_gen(source, target));
+    };
+
+    // Init and run generator
+    GNMUndirected<decltype(edge_cb)> gen(config_, rank_, edge_cb);
+    gen.Generate();
+
+    vertex_range = gen.GetVertexRange();
+    return result;
+  }
+
   EdgeList GenerateDirectedGNP(SInt n, 
                                LPFloat p, 
                                SInt k = 0, 
@@ -157,59 +190,59 @@ class KaGen {
     return edges;
   }
 
-  EdgeList Generate2DRGG(SInt n, 
-                         LPFloat r, 
-                         SInt k = 0, 
-                         SInt seed = 1, 
-                         const std::string &output = "out") {
-    EdgeList edges; 
-
-    // Update config
-    config_.n = n;
-    config_.r = r;
-    config_.k = (k == 0 ? config_.k : k);
-    config_.seed = seed;
-    config_.output_file = output;
-
-    // Edge callback
-    auto edge_cb = [&](SInt source, SInt target) {
-      edges.emplace_back(source, target);
-    };
-
-    // Init and run generator
-    RGG2D<decltype(edge_cb)> gen(config_, rank_, edge_cb);
-    gen.Generate();
-
-    edges.insert(begin(edges), gen.GetVertexRange());
-    return edges;
-  }
-
-  EdgeList Generate3DRGG(SInt n, 
-                         LPFloat r, 
-                         SInt k = 0, 
-                         SInt seed = 1, 
-                         const std::string &output = "out") {
-    EdgeList edges; 
-
-    // Update config
-    config_.n = n;
-    config_.r = r;
-    config_.k = (k == 0 ? config_.k : k);
-    config_.seed = seed;
-    config_.output_file = output;
-
-    // Edge callback
-    auto edge_cb = [&](SInt source, SInt target) {
-      edges.emplace_back(source, target);
-    };
-
-    // Init and run generator
-    RGG3D<decltype(edge_cb)> gen(config_, rank_, edge_cb);
-    gen.Generate();
-
-    edges.insert(begin(edges), gen.GetVertexRange());
-    return edges;
-  }
+//  EdgeList Generate2DRGG(SInt n, 
+//                         LPFloat r, 
+//                         SInt k = 0, 
+//                         SInt seed = 1, 
+//                         const std::string &output = "out") {
+//    EdgeList edges; 
+//
+//    // Update config
+//    config_.n = n;
+//    config_.r = r;
+//    config_.k = (k == 0 ? config_.k : k);
+//    config_.seed = seed;
+//    config_.output_file = output;
+//
+//    // Edge callback
+//    auto edge_cb = [&](SInt source, SInt target) {
+//      edges.emplace_back(source, target);
+//    };
+//
+//    // Init and run generator
+//    RGG2D<decltype(edge_cb)> gen(config_, rank_, edge_cb);
+//    gen.Generate();
+//
+//    edges.insert(begin(edges), gen.GetVertexRange());
+//    return edges;
+//  }
+//
+//  EdgeList Generate3DRGG(SInt n, 
+//                         LPFloat r, 
+//                         SInt k = 0, 
+//                         SInt seed = 1, 
+//                         const std::string &output = "out") {
+//    EdgeList edges; 
+//
+//    // Update config
+//    config_.n = n;
+//    config_.r = r;
+//    config_.k = (k == 0 ? config_.k : k);
+//    config_.seed = seed;
+//    config_.output_file = output;
+//
+//    // Edge callback
+//    auto edge_cb = [&](SInt source, SInt target) {
+//      edges.emplace_back(source, target);
+//    };
+//
+//    // Init and run generator
+//    RGG3D<decltype(edge_cb)> gen(config_, rank_, edge_cb);
+//    gen.Generate();
+//
+//    edges.insert(begin(edges), gen.GetVertexRange());
+//    return edges;
+//  }
 
 //  EdgeList Generate2DRDG(SInt n, 
 //                         SInt k = 0, 

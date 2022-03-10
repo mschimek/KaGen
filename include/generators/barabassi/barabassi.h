@@ -9,6 +9,7 @@
 #ifndef _BARABASSI_H_
 #define _BARABASSI_H_
 
+#include <iomanip>
 #include <iostream>
 #include <vector>
 

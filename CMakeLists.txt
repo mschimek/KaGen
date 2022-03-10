@@ -309,7 +309,7 @@ endmacro(build_mpi_prog)
 ################################################################################
 
 # descend into library source
-# add_subdirectory(include)
+add_subdirectory(include)
 
 # descend into apps
 add_subdirectory(app)
