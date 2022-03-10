@@ -18,7 +18,7 @@
 
 namespace kagen {
 
-void ParseParameters(int argn, char **argv,
+inline void ParseParameters(int argn, char **argv,
                      PEID, PEID size,
                      PGeneratorConfig &generator_config) {
   ArgParser args(argn, argv);
