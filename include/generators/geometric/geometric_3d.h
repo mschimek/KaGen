@@ -25,6 +25,7 @@
 
 namespace kagen {
 
+  using namespace libmorton;
 class Geometric3D {
  public:
   // n, x_off, y_off, z_off, generated, offset

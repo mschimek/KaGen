@@ -26,6 +26,7 @@
 
 namespace kagen {
 
+  using namespace libmorton;
 class Geometric2D {
  public:
   // n, x_off, y_off, generated, offset
