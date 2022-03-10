@@ -40,12 +40,13 @@ set(GENERATOR_INCS
   )
 
 message("\nLIBS: ${KAGEN_LINK_LIBRARIES}")
-add_library(generators STATIC ${GENERATOR_SRCS})
-set_target_properties(generators PROPERTIES LINKER_LANGUAGE CXX)
-target_compile_definitions(generators PUBLIC ${KAGEN_DEFINITIONS})
-target_include_directories(generators PUBLIC ${PROJECT_SOURCE_DIR})
+
+add_library(generators INTERFACE)
+#set_target_properties(generators PROPERTIES LINKER_LANGUAGE CXX)
+#target_compile_definitions(generators PUBLIC ${KAGEN_DEFINITIONS})
+target_include_directories(generators INTERFACE ${PROJECT_SOURCE_DIR})
 # target_include_directories(generators PUBLIC ${GENERATOR_INCS})
-target_include_directories(generators SYSTEM PUBLIC ${KAGEN_INCLUDE_DIRS})
-target_link_libraries(generators ${KAGEN_LINK_LIBRARIES})
+target_include_directories(generators SYSTEM INTERFACE ${KAGEN_INCLUDE_DIRS})
+target_link_libraries(generators INTERFACE ${KAGEN_LINK_LIBRARIES})
 
 ################################################################################

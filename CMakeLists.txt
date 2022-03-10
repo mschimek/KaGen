@@ -265,13 +265,13 @@ else()
 endif()
 
 # find CGAL
-set(CGAL_DONT_OVERRIDE_CMAKE_FLAGS TRUE CACHE BOOL "Force CGAL to maintain CMAKE flags")
-find_package(CGAL)
-if(CGAL_FOUND)
-  include(${CGAL_USE_FILE})
-else()
-  message(STATUS "Could not find CGAL library")
-endif()
+#set(CGAL_DONT_OVERRIDE_CMAKE_FLAGS TRUE CACHE BOOL "Force CGAL to maintain CMAKE flags")
+#find_package(CGAL)
+#if(CGAL_FOUND)
+#  include(${CGAL_USE_FILE})
+#else()
+#  message(STATUS "Could not find CGAL library")
+#endif()
 
 # use sampling lib
 add_subdirectory(extlib/sampling)
