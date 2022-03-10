@@ -38,7 +38,7 @@ set(KAGEN_DEFINITIONS "")
 set(KAGEN_INCLUDE_DIRS 
   ${PROJECT_SOURCE_DIR}/app
   ${PROJECT_SOURCE_DIR}/extlib/sampling/sampling
-  ${PROJECT_SOURCE_DIR}/extlib/libmorton/libmorton/include
+  ${PROJECT_SOURCE_DIR}/extlib/libmorton/include/libmorton
   ${PROJECT_SOURCE_DIR}/include
   ${PROJECT_SOURCE_DIR}/include/generators
   ${PROJECT_SOURCE_DIR}/include/generators/barabassi
@@ -309,7 +309,7 @@ endmacro(build_mpi_prog)
 ################################################################################
 
 # descend into library source
-# add_subdirectory(include)
+add_subdirectory(include)
 
 # descend into apps
 add_subdirectory(app)
