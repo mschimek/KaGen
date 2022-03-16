@@ -35,10 +35,8 @@ class Geometric2D {
   // x, y, id
   using Vertex = std::tuple<LPFloat, LPFloat, SInt>;
 
-  Geometric2D(PGeneratorConfig &config, const PEID /* rank */)
-      : config_(config), rng_(config) {
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank_);
-    MPI_Comm_size(MPI_COMM_WORLD, &size_);
+  Geometric2D(PGeneratorConfig &config, const PEID rank, const PEID size)
+      : config_(config), rank_{rank}, size_{size}, rng_(config) {
 
     // Vertex range
     start_node_ = std::numeric_limits<SInt>::max();

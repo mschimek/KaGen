@@ -210,11 +210,44 @@ class KaGen {
     };
 
     // Init and run generator
-    RGG2D<decltype(edge_cb)> gen(config_, rank_, edge_cb);
+    RGG2D<decltype(edge_cb)> gen(config_, rank_, size_, edge_cb);
     gen.Generate();
 
     edges.insert(begin(edges), gen.GetVertexRange());
     return edges;
+  }
+
+  template <typename WeightGen,
+            typename EdgeList = std::vector<typename WeightGen::EdgeType>>
+  std::pair<EdgeList, std::pair<SInt, SInt>> Generate2DRGG(
+                         WeightGen&& weight_gen,
+                         SInt n,
+                         LPFloat r,
+                         SInt k = 0,
+                         SInt seed = 1,
+                         const std::string &output = "out") {
+    std::pair<EdgeList, std::pair<SInt, SInt>> result;
+    auto &edges = result.first;
+    auto &vertex_range = result.second;
+
+    // Update config
+    config_.n = n;
+    config_.r = r;
+    config_.k = (k == 0 ? config_.k : k);
+    config_.seed = seed;
+    config_.output_file = output;
+
+    // Edge callback
+    auto edge_cb = [&](SInt source, SInt target) {
+      edges.emplace_back(source, target, weight_gen(source, target));
+    };
+
+    // Init and run generator
+    RGG2D<decltype(edge_cb)> gen(config_, rank_, size_, edge_cb);
+    gen.Generate();
+
+    vertex_range = gen.GetVertexRange();
+    return result;
   }
 
   EdgeList Generate3DRGG(SInt n, 

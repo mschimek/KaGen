@@ -17,9 +17,9 @@ namespace kagen {
 template <typename EdgeCallback>
 class RGG2D : public Geometric2D {
  public:
-  RGG2D(PGeneratorConfig &config, const PEID rank, 
+  RGG2D(PGeneratorConfig &config, const PEID rank, const PEID size,
         const EdgeCallback &cb)
-      : Geometric2D(config, rank), io_(config), cb_(cb) {
+      : Geometric2D(config, rank, size), io_(config), cb_(cb) {
     // Chunk variables
     total_chunks_ = config_.k;
     chunks_per_dim_ = sqrt(total_chunks_);
