@@ -10,9 +10,20 @@
 #ifndef _RGG_2D_H_
 #define _RGG_2D_H_
 
+#include <utility>
 #include "geometric/geometric_2d.h"
 
 namespace kagen {
+
+namespace internal {
+  template<typename F, typename... Args>
+    decltype(std::declval<F>()(std::declval<Args>()...), std::true_type{})
+    can_call_with_impl(int);
+  template<typename F, typename... Args>
+    std::false_type can_call_with_impl(...);
+}
+template<typename F, typename... Args>
+  constexpr bool is_callable_with() { return decltype(internal::can_call_with_impl<F,Args...>(0)){}; }
 
 template <typename EdgeCallback>
 class RGG2D : public Geometric2D {
@@ -141,9 +152,16 @@ class RGG2D : public Geometric2D {
         const Vertex &v1 = vertices_first[i];
         for (SInt j = i + 1; j < vertices_second.size(); ++j) {
           const Vertex &v2 = vertices_second[j];
-          if (PGGeometry::SquaredEuclideanDistance(v1, v2) <= target_r_) {
-            cb_(std::get<2>(v1), std::get<2>(v2));
-            cb_(std::get<2>(v2), std::get<2>(v1));
+          const auto squared_dist = PGGeometry::SquaredEuclideanDistance(v1, v2);
+          if (squared_dist <= target_r_) {
+            if constexpr(is_callable_with<EdgeCallback, SInt, SInt, LPFloat>())
+            {
+              cb_(std::get<2>(v1), std::get<2>(v2), squared_dist);
+              cb_(std::get<2>(v2), std::get<2>(v1), squared_dist);
+            } else {
+              cb_(std::get<2>(v1), std::get<2>(v2));
+              cb_(std::get<2>(v2), std::get<2>(v1));
+            }
 #ifdef OUTPUT_EDGES
             io_.PushEdge(std::get<2>(v1), std::get<2>(v2));
             io_.PushEdge(std::get<2>(v2), std::get<2>(v1));
@@ -163,8 +181,14 @@ class RGG2D : public Geometric2D {
         for (SInt j = 0; j < vertices_second.size(); ++j) {
           const Vertex &v2 = vertices_second[j];
           if (PGGeometry::SquaredEuclideanDistance(v1, v2) <= target_r_) {
-            cb_(std::get<2>(v1), std::get<2>(v2));
-            cb_(std::get<2>(v2), std::get<2>(v1));
+            if constexpr(is_callable_with<EdgeCallback, SInt, SInt, LPFloat>())
+            {
+              cb_(std::get<2>(v1), std::get<2>(v2), PGGeometry::SquaredEuclideanDistance(v1, v2));
+              cb_(std::get<2>(v2), std::get<2>(v1), PGGeometry::SquaredEuclideanDistance(v1, v2));
+            } else {
+              cb_(std::get<2>(v1), std::get<2>(v2));
+              cb_(std::get<2>(v2), std::get<2>(v1));
+            }
 #ifdef OUTPUT_EDGES
             io_.PushEdge(std::get<2>(v1), std::get<2>(v2));
             if (IsLocalChunk(second_chunk_id)) io_.PushEdge(std::get<2>(v2), std::get<2>(v1));

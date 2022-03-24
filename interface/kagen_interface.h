@@ -238,8 +238,9 @@ class KaGen {
     config_.output_file = output;
 
     // Edge callback
-    auto edge_cb = [&](SInt source, SInt target) {
-      edges.emplace_back(source, target, weight_gen(source, target));
+    auto edge_cb = [&](SInt source, SInt target, LPFloat squared_distance) {
+      const typename WeightGen::WeightType w = weight_gen.get_min_weight() + std::min(squared_distance/(r*r), 1.0) * weight_gen.get_max_weight();
+      edges.emplace_back(source, target, std::min(w, weight_gen.get_max_weight()));
     };
 
     // Init and run generator
