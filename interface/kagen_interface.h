@@ -384,6 +384,45 @@ class KaGen {
     return edges;
   }
 
+  template <typename WeightGen,
+            typename EdgeList = std::vector<typename WeightGen::EdgeType>>
+  std::pair<EdgeList, std::pair<SInt, SInt>>
+   GenerateRHG(WeightGen&& weight_gen, SInt n, 
+                       LPFloat gamma,
+                       SInt d,
+                       SInt k = 0, 
+                       SInt seed = 1, 
+                       const std::string &output = "out") {
+  std::pair<EdgeList, std::pair<SInt, SInt>> result;
+    // auto& [edges, vertex_range] = result; // cannot use this one as edges is
+    // not a variable but reference name and lambda cpatures to it (error with
+    // clang)
+    auto &edges = result.first;
+    auto &vertex_range = result.second;
+
+
+
+    // Update config
+    config_.n = n;
+    config_.plexp = gamma;
+    config_.avg_degree = d;
+    config_.k = (k == 0 ? config_.k : k);
+    config_.seed = seed;
+    config_.output_file = output;
+
+    // Edge callback
+    auto edge_cb = [&](SInt source, SInt target) {
+      edges.emplace_back(source, target, weight_gen(source, target));
+    };
+
+    // Init and run generator
+    Hyperbolic<decltype(edge_cb)> gen(config_, rank_, edge_cb);
+    gen.Generate();
+
+    vertex_range = gen.GetVertexRange();
+    return result;
+  }
+
   EdgeList Generate2DGrid(SInt n, 
                           SInt m,
                           LPFloat p,
