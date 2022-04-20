@@ -367,6 +367,7 @@ class KaGen {
     config_.n = n;
     config_.plexp = gamma;
     config_.avg_degree = d;
+    config_.query_both = false;
     config_.k = (k == 0 ? config_.k : k);
     config_.seed = seed;
     config_.output_file = output;
@@ -406,6 +407,7 @@ class KaGen {
     config_.n = n;
     config_.plexp = gamma;
     config_.avg_degree = d;
+    config_.query_both = false;
     config_.k = (k == 0 ? config_.k : k);
     config_.seed = seed;
     config_.output_file = output;
