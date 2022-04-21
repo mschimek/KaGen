@@ -24,30 +24,26 @@
 #include "gnm/gnm_undirected.h"
 #include "gnp/gnp_directed.h"
 #include "gnp/gnp_undirected.h"
+#include "grid/grid_2d.h"
 #include "hyperbolic/hyperbolic.h"
 #include "barabassi/barabassi.h"
-#include "grid/grid_2d.h"
 
 namespace kagen {
 
 typedef std::vector<std::pair<SInt, SInt>> EdgeList;
 
 class KaGen {
- public:
-  KaGen(const PEID rank, const PEID size) 
-    : rank_(rank), size_(size) { 
-      SetDefaults();
-    }
+public:
+  KaGen(const PEID rank, const PEID size) : rank_(rank), size_(size) {
+    SetDefaults();
+  }
 
   virtual ~KaGen() = default;
 
-  EdgeList GenerateDirectedGNM(SInt n, 
-                               SInt m, 
-                               SInt k = 0, 
-                               SInt seed = 1, 
-                               const std::string &output = "out", 
+  EdgeList GenerateDirectedGNM(SInt n, SInt m, SInt k = 0, SInt seed = 1,
+                               const std::string& output = "out",
                                bool self_loops = false) {
-    EdgeList edges; 
+    EdgeList edges;
 
     // Update config
     config_.n = n;
@@ -70,13 +66,10 @@ class KaGen {
     return edges;
   }
 
-  EdgeList GenerateUndirectedGNM(SInt n, 
-                                 SInt m, 
-                                 SInt k = 0, 
-                                 SInt seed = 1, 
-                                 const std::string &output = "out", 
+  EdgeList GenerateUndirectedGNM(SInt n, SInt m, SInt k = 0, SInt seed = 1,
+                                 const std::string& output = "out",
                                  bool self_loops = false) {
-    EdgeList edges; 
+    EdgeList edges;
 
     // Update config
     config_.n = n;
@@ -101,15 +94,16 @@ class KaGen {
 
   template <typename WeightGen,
             typename EdgeList = std::vector<typename WeightGen::EdgeType>>
-  std::pair<EdgeList, std::pair<SInt, SInt>> GenerateUndirectedGNM(
-      WeightGen &&weight_gen, SInt n, SInt m, SInt k = 0, SInt seed = 1,
-      const std::string &output = "out", bool self_loops = false) {
+  std::pair<EdgeList, std::pair<SInt, SInt>>
+  GenerateUndirectedGNM(WeightGen&& weight_gen, SInt n, SInt m, SInt k = 0,
+                        SInt seed = 1, const std::string& output = "out",
+                        bool self_loops = false) {
     std::pair<EdgeList, std::pair<SInt, SInt>> result;
     // auto& [edges, vertex_range] = result; // cannot use this one as edges is
     // not a variable but reference name and lambda cpatures to it (error with
     // clang)
-    auto &edges = result.first;
-    auto &vertex_range = result.second;
+    auto& edges = result.first;
+    auto& vertex_range = result.second;
 
     // Update config
     config_.n = n;
@@ -132,13 +126,10 @@ class KaGen {
     return result;
   }
 
-  EdgeList GenerateDirectedGNP(SInt n, 
-                               LPFloat p, 
-                               SInt k = 0, 
-                               SInt seed = 1, 
-                               const std::string &output = "out", 
+  EdgeList GenerateDirectedGNP(SInt n, LPFloat p, SInt k = 0, SInt seed = 1,
+                               const std::string& output = "out",
                                bool self_loops = false) {
-    EdgeList edges; 
+    EdgeList edges;
 
     // Update config
     config_.n = n;
@@ -161,13 +152,10 @@ class KaGen {
     return edges;
   }
 
-  EdgeList GenerateUndirectedGNP(SInt n, 
-                                 LPFloat p, 
-                                 SInt k = 0, 
-                                 SInt seed = 1, 
-                                 const std::string &output = "out", 
+  EdgeList GenerateUndirectedGNP(SInt n, LPFloat p, SInt k = 0, SInt seed = 1,
+                                 const std::string& output = "out",
                                  bool self_loops = false) {
-    EdgeList edges; 
+    EdgeList edges;
 
     // Update config
     config_.n = n;
@@ -190,12 +178,9 @@ class KaGen {
     return edges;
   }
 
-  EdgeList Generate2DRGG(SInt n, 
-                         LPFloat r, 
-                         SInt k = 0, 
-                         SInt seed = 1, 
-                         const std::string &output = "out") {
-    EdgeList edges; 
+  EdgeList Generate2DRGG(SInt n, LPFloat r, SInt k = 0, SInt seed = 1,
+                         const std::string& output = "out") {
+    EdgeList edges;
 
     // Update config
     config_.n = n;
@@ -219,16 +204,12 @@ class KaGen {
 
   template <typename WeightGen,
             typename EdgeList = std::vector<typename WeightGen::EdgeType>>
-  std::pair<EdgeList, std::pair<SInt, SInt>> Generate2DRGG(
-                         WeightGen&& weight_gen,
-                         SInt n,
-                         LPFloat r,
-                         SInt k = 0,
-                         SInt seed = 1,
-                         const std::string &output = "out") {
+  std::pair<EdgeList, std::pair<SInt, SInt>>
+  Generate2DRGG(WeightGen&& weight_gen, SInt n, LPFloat r, SInt k = 0,
+                SInt seed = 1, const std::string& output = "out") {
     std::pair<EdgeList, std::pair<SInt, SInt>> result;
-    auto &edges = result.first;
-    auto &vertex_range = result.second;
+    auto& edges = result.first;
+    auto& vertex_range = result.second;
 
     // Update config
     config_.n = n;
@@ -239,8 +220,12 @@ class KaGen {
 
     // Edge callback
     auto edge_cb = [&](SInt source, SInt target, LPFloat squared_distance) {
-      const typename WeightGen::WeightType w = weight_gen.get_min_weight() + std::min(squared_distance/(r*r), 1.0) * weight_gen.get_max_weight();
-      edges.emplace_back(source, target, std::min(w, weight_gen.get_max_weight()));
+      const typename WeightGen::WeightType w =
+          weight_gen.get_min_weight() +
+          std::min(squared_distance / (r * r), 1.0) *
+              weight_gen.get_max_weight();
+      edges.emplace_back(source, target,
+                         std::min(w, weight_gen.get_max_weight()));
     };
 
     // Init and run generator
@@ -251,12 +236,9 @@ class KaGen {
     return result;
   }
 
-  EdgeList Generate3DRGG(SInt n, 
-                         LPFloat r, 
-                         SInt k = 0, 
-                         SInt seed = 1, 
-                         const std::string &output = "out") {
-    EdgeList edges; 
+  EdgeList Generate3DRGG(SInt n, LPFloat r, SInt k = 0, SInt seed = 1,
+                         const std::string& output = "out") {
+    EdgeList edges;
 
     // Update config
     config_.n = n;
@@ -278,62 +260,59 @@ class KaGen {
     return edges;
   }
 
-//  EdgeList Generate2DRDG(SInt n, 
-//                         SInt k = 0, 
-//                         SInt seed = 1, 
-//                         const std::string &output = "out") {
-//    EdgeList edges; 
-//
-//    // Update config
-//    config_.n = n;
-//    config_.k = (k == 0 ? config_.k : k);
-//    config_.seed = seed;
-//    config_.output_file = output;
-//
-//    // Edge callback
-//    auto edge_cb = [&](SInt source, SInt target) {
-//      edges.emplace_back(source, target);
-//    };
-//
-//    // Init and run generator
-//    Delaunay2D<decltype(edge_cb)> gen(config_, rank_, edge_cb);
-//    gen.Generate();
-//
-//    edges.insert(begin(edges), gen.GetVertexRange());
-//    return edges;
-//  }
-//
-//  EdgeList Generate3DRDG(SInt n, 
-//                         SInt k = 0, 
-//                         SInt seed = 1, 
-//                         const std::string &output = "out") {
-//    EdgeList edges; 
-//
-//    // Update config
-//    config_.n = n;
-//    config_.k = (k == 0 ? config_.k : k);
-//    config_.seed = seed;
-//    config_.output_file = output;
-//
-//    // Edge callback
-//    auto edge_cb = [&](SInt source, SInt target) {
-//      edges.emplace_back(source, target);
-//    };
-//
-//    // Init and run generator
-//    Delaunay3D<decltype(edge_cb)> gen(config_, rank_, edge_cb);
-//    gen.Generate();
-//
-//    edges.insert(begin(edges), gen.GetVertexRange());
-//    return edges;
-//  }
+  //  EdgeList Generate2DRDG(SInt n,
+  //                         SInt k = 0,
+  //                         SInt seed = 1,
+  //                         const std::string &output = "out") {
+  //    EdgeList edges;
+  //
+  //    // Update config
+  //    config_.n = n;
+  //    config_.k = (k == 0 ? config_.k : k);
+  //    config_.seed = seed;
+  //    config_.output_file = output;
+  //
+  //    // Edge callback
+  //    auto edge_cb = [&](SInt source, SInt target) {
+  //      edges.emplace_back(source, target);
+  //    };
+  //
+  //    // Init and run generator
+  //    Delaunay2D<decltype(edge_cb)> gen(config_, rank_, edge_cb);
+  //    gen.Generate();
+  //
+  //    edges.insert(begin(edges), gen.GetVertexRange());
+  //    return edges;
+  //  }
+  //
+  //  EdgeList Generate3DRDG(SInt n,
+  //                         SInt k = 0,
+  //                         SInt seed = 1,
+  //                         const std::string &output = "out") {
+  //    EdgeList edges;
+  //
+  //    // Update config
+  //    config_.n = n;
+  //    config_.k = (k == 0 ? config_.k : k);
+  //    config_.seed = seed;
+  //    config_.output_file = output;
+  //
+  //    // Edge callback
+  //    auto edge_cb = [&](SInt source, SInt target) {
+  //      edges.emplace_back(source, target);
+  //    };
+  //
+  //    // Init and run generator
+  //    Delaunay3D<decltype(edge_cb)> gen(config_, rank_, edge_cb);
+  //    gen.Generate();
+  //
+  //    edges.insert(begin(edges), gen.GetVertexRange());
+  //    return edges;
+  //  }
 
-  EdgeList GenerateBA(SInt n, 
-                      SInt d,
-                      SInt k = 0, 
-                      SInt seed = 1, 
-                      const std::string &output = "out") {
-    EdgeList edges; 
+  EdgeList GenerateBA(SInt n, SInt d, SInt k = 0, SInt seed = 1,
+                      const std::string& output = "out") {
+    EdgeList edges;
 
     // Update config
     config_.n = n;
@@ -355,13 +334,9 @@ class KaGen {
     return edges;
   }
 
-  EdgeList GenerateRHG(SInt n, 
-                       LPFloat gamma,
-                       SInt d,
-                       SInt k = 0, 
-                       SInt seed = 1, 
-                       const std::string &output = "out") {
-    EdgeList edges; 
+  EdgeList GenerateRHG(SInt n, LPFloat gamma, SInt d, SInt k = 0, SInt seed = 1,
+                       const std::string& output = "out") {
+    EdgeList edges;
 
     // Update config
     config_.n = n;
@@ -388,94 +363,80 @@ class KaGen {
   template <typename WeightGen,
             typename EdgeList = std::vector<typename WeightGen::EdgeType>>
   std::pair<EdgeList, std::pair<SInt, SInt>>
-   GenerateRHG(WeightGen&& weight_gen, SInt n, 
-                       LPFloat gamma,
-                       SInt d,
-                       SInt k = 0, 
-                       SInt seed = 1, 
-                       const std::string &output = "out") {
-  std::pair<EdgeList, std::pair<SInt, SInt>> result;
-    // auto& [edges, vertex_range] = result; // cannot use this one as edges is
-    // not a variable but reference name and lambda cpatures to it (error with
-    // clang)
-    auto &edges = result.first;
-    auto &vertex_range = result.second;
-
-
-
-    // Update config
-    config_.n = n;
-    config_.plexp = gamma;
-    config_.avg_degree = d;
-    config_.query_both = false;
-    config_.k = (k == 0 ? config_.k : k);
-    config_.seed = seed;
-    config_.output_file = output;
-
-    // Edge callback
-    auto edge_cb = [&](SInt source, SInt target) {
-      edges.emplace_back(source, target, weight_gen(source, target));
-    };
-
-    // Init and run generator
-    Hyperbolic<decltype(edge_cb)> gen(config_, rank_, edge_cb);
-    gen.Generate();
-
-    vertex_range = gen.GetVertexRange();
-    return result;
-  }
-
-  EdgeList Generate2DGrid(SInt n, 
-                          SInt m,
-                          LPFloat p,
-                          SInt periodic,
-                          SInt k = 0, 
-                          SInt seed = 1, 
-                          const std::string &output = "out") {
-    EdgeList edges; 
-
-    // Update config
-    config_.n = n;
-    config_.m = m;
-    config_.p = p;
-    config_.periodic = periodic;
-    config_.k = (k == 0 ? config_.k : k);
-    config_.seed = seed;
-    config_.output_file = output;
-
-    // Edge callback
-    auto edge_cb = [&](SInt source, SInt target) {
-      edges.emplace_back(source, target);
-    };
-
-    // Init and run generator
-    Grid2D<decltype(edge_cb)> gen(config_, rank_, edge_cb);
-    gen.Generate();
-
-    edges.insert(begin(edges), gen.GetVertexRange());
-    return edges;
-  }
-
-  template <typename WeightGen,
-            typename EdgeList = std::vector<typename WeightGen::EdgeType>>
-  std::pair<EdgeList, std::pair<SInt, SInt>>
-  Generate2DGrid(WeightGen&& weight_gen, SInt n,
-                          SInt m,
-                          LPFloat p,
-                          SInt periodic,
-                          SInt k = 0,
-                          SInt seed = 1,
-                          const std::string &output = "out") {
+  GenerateRHG(WeightGen&& weight_gen, SInt n, LPFloat gamma, SInt d, SInt k = 0,
+              SInt seed = 1, const std::string& output = "out") {
     std::pair<EdgeList, std::pair<SInt, SInt>> result;
     // auto& [edges, vertex_range] = result; // cannot use this one as edges is
     // not a variable but reference name and lambda cpatures to it (error with
     // clang)
-    auto &edges = result.first;
-    auto &vertex_range = result.second;
+    auto& edges = result.first;
+    auto& vertex_range = result.second;
 
     // Update config
-    config_.grid_x = n;
-    config_.grid_y = m;
+    config_.n = n;
+    config_.plexp = gamma;
+    config_.avg_degree = d;
+    config_.query_both = false;
+    config_.k = (k == 0 ? config_.k : k);
+    config_.seed = seed;
+    config_.output_file = output;
+
+    // Edge callback
+    auto edge_cb = [&](SInt source, SInt target) {
+      edges.emplace_back(source, target, weight_gen(source, target));
+    };
+
+    // Init and run generator
+    Hyperbolic<decltype(edge_cb)> gen(config_, rank_, edge_cb);
+    gen.Generate();
+
+    vertex_range = gen.GetVertexRange();
+    return result;
+  }
+
+  EdgeList Generate2DGrid(SInt grid_x, SInt grid_y, LPFloat p, bool periodic,
+                          SInt k = 0, SInt seed = 1,
+                          const std::string& output = "out") {
+    EdgeList edges;
+
+    // Update config
+    config_.grid_x = grid_x;
+    config_.grid_y = grid_y;
+    config_.p = p;
+    config_.periodic = periodic;
+    config_.k = (k == 0 ? config_.k : k);
+    config_.seed = seed;
+    config_.output_file = output;
+
+    // Edge callback
+    auto edge_cb = [&](SInt source, SInt target) {
+      edges.emplace_back(source, target);
+    };
+
+    // Init and run generator
+    Grid2D<decltype(edge_cb)> gen(config_, rank_, edge_cb);
+    gen.Generate();
+
+    edges.insert(begin(edges), gen.GetVertexRange());
+    return edges;
+  }
+
+  template <typename WeightGen,
+            typename EdgeList = std::vector<typename WeightGen::EdgeType>>
+  std::pair<EdgeList, std::pair<SInt, SInt>>
+  Generate2DGrid(WeightGen&& weight_gen, SInt grid_x, SInt grid_y, LPFloat p,
+                 bool periodic, SInt k = 0, SInt seed = 1,
+                 const std::string& output = "out") {
+    std::pair<EdgeList, std::pair<SInt, SInt>> result;
+    // auto& [edges, vertex_range] = result; // cannot use this one as edges is
+    // not a variable but reference name and lambda cpatures to it (error with
+    // clang)
+    auto& edges = result.first;
+    auto& vertex_range = result.second;
+
+    // Update config
+    config_.grid_x = grid_x;
+    config_.grid_y = grid_y;
     config_.p = p;
     config_.periodic = periodic;
     config_.k = (k == 0 ? config_.k : k);
@@ -495,11 +456,11 @@ class KaGen {
     return result;
   }
 
- private:
+private:
   // PE status
   PEID rank_, size_;
 
-  PGeneratorConfig config_; 
+  PGeneratorConfig config_;
 
   void SetDefaults() {
     config_.n = 100;
@@ -526,5 +487,5 @@ class KaGen {
   }
 };
 
-}
+} // namespace kagen
 #endif
