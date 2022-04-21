@@ -35,6 +35,7 @@ class Grid2D {
 
     // Init dimensions
     // TODO: Only tested for cube PEs and one chunk per PE
+    std::cout << "grid_x: " << config_.grid_x << " grid_y: " << config_.grid_y << std::endl;
     total_rows_ = config_.grid_x;
     total_cols_ = config_.grid_y;
     config_.n = total_rows_ * total_cols_;
