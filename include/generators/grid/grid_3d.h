@@ -236,7 +236,7 @@ class Grid3D {
     SInt h = sampling::Spooky::hash(config_.seed + edge_seed);
     if (rng_.GenerateBinomial(h, 1, edge_probability_)) {
       cb_(source, target);
-      cb_(target, source);
+      //cb_(target, source);
 #ifdef OUTPUT_EDGES
       io_.PushEdge(source, target);
 #else

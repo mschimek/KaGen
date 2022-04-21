@@ -25,7 +25,9 @@
 #include "gnp/gnp_directed.h"
 #include "gnp/gnp_undirected.h"
 #include "grid/grid_2d.h"
+#include "grid/grid_3d.h"
 #include "hyperbolic/hyperbolic.h"
+
 #include "barabassi/barabassi.h"
 
 namespace kagen {
@@ -450,6 +452,70 @@ public:
 
     // Init and run generator
     Grid2D<decltype(edge_cb)> gen(config_, rank_, edge_cb);
+    gen.Generate();
+
+    vertex_range = gen.GetVertexRange();
+    return result;
+  }
+
+  EdgeList Generate3DGrid(SInt grid_x, SInt grid_y, SInt grid_z, LPFloat p,
+                          bool periodic, SInt k = 0, SInt seed = 1,
+                          const std::string& output = "out") {
+    EdgeList edges;
+
+    // Update config
+    config_.grid_x = grid_x;
+    config_.grid_y = grid_y;
+    config_.grid_z = grid_z;
+    config_.p = p;
+    config_.periodic = periodic;
+    config_.k = (k == 0 ? config_.k : k);
+    config_.seed = seed;
+    config_.output_file = output;
+
+    // Edge callback
+    auto edge_cb = [&](SInt source, SInt target) {
+      edges.emplace_back(source, target);
+    };
+
+    // Init and run generator
+    Grid3D<decltype(edge_cb)> gen(config_, rank_, edge_cb);
+    gen.Generate();
+
+    edges.insert(begin(edges), gen.GetVertexRange());
+    return edges;
+  }
+
+  template <typename WeightGen,
+            typename EdgeList = std::vector<typename WeightGen::EdgeType>>
+  std::pair<EdgeList, std::pair<SInt, SInt>>
+  Generate3DGrid(WeightGen&& weight_gen, SInt grid_x, SInt grid_y, SInt grid_z,
+                 LPFloat p, bool periodic, SInt k = 0, SInt seed = 1,
+                 const std::string& output = "out") {
+    std::pair<EdgeList, std::pair<SInt, SInt>> result;
+    // auto& [edges, vertex_range] = result; // cannot use this one as edges is
+    // not a variable but reference name and lambda cpatures to it (error with
+    // clang)
+    auto& edges = result.first;
+    auto& vertex_range = result.second;
+
+    // Update config
+    config_.grid_x = grid_x;
+    config_.grid_y = grid_y;
+    config_.grid_z = grid_z;
+    config_.p = p;
+    config_.periodic = periodic;
+    config_.k = (k == 0 ? config_.k : k);
+    config_.seed = seed;
+    config_.output_file = output;
+
+    // Edge callback
+    auto edge_cb = [&](SInt source, SInt target) {
+      edges.emplace_back(source, target, weight_gen(source, target));
+    };
+
+    // Init and run generator
+    Grid3D<decltype(edge_cb)> gen(config_, rank_, edge_cb);
     gen.Generate();
 
     vertex_range = gen.GetVertexRange();
