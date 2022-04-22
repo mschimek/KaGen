@@ -222,12 +222,8 @@ public:
 
     // Edge callback
     auto edge_cb = [&](SInt source, SInt target, LPFloat squared_distance) {
-      const typename WeightGen::WeightType w =
-          weight_gen.get_min_weight() +
-          std::min(squared_distance / (r * r), 1.0) *
-              weight_gen.get_max_weight();
-      edges.emplace_back(source, target,
-                         std::min(w, weight_gen.get_max_weight()));
+      const auto dist_factor = std::min(squared_distance / (r * r), 1.0);
+      edges.emplace_back(source, target, weight_gen(source, target, dist_factor));
     };
 
     // Init and run generator
