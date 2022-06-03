@@ -258,6 +258,37 @@ public:
     return edges;
   }
 
+  template <typename WeightGen,
+            typename EdgeList = std::vector<typename WeightGen::EdgeType>>
+  std::pair<EdgeList, std::pair<SInt, SInt>>
+  Generate3DRGG(WeightGen&& weight_gen, SInt n, LPFloat r, SInt k = 0, SInt seed = 1,
+                         const std::string& output = "out") {
+    std::pair<EdgeList, std::pair<SInt, SInt>> result;
+    auto& edges = result.first;
+    auto& vertex_range = result.second;
+
+    // Update config
+    config_.n = n;
+    config_.r = r;
+    config_.k = (k == 0 ? config_.k : k);
+    config_.seed = seed;
+    config_.output_file = output;
+
+    // Edge callback
+    auto edge_cb = [&](SInt source, SInt target) {
+      //const auto dist_factor = std::min(squared_distance / (r * r), 1.0);
+      const auto dist_factor = 1.0; // not implemented yet
+      edges.emplace_back(source, target, weight_gen(source, target, dist_factor));
+    };
+
+    // Init and run generator
+    RGG3D<decltype(edge_cb)> gen(config_, rank_, edge_cb);
+    gen.Generate();
+
+    vertex_range = gen.GetVertexRange();
+    return result;
+  }
+
   //  EdgeList Generate2DRDG(SInt n,
   //                         SInt k = 0,
   //                         SInt seed = 1,

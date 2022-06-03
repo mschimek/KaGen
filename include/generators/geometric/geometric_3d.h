@@ -375,12 +375,12 @@ class Geometric3D {
 
   // Chunk coding
   inline SInt Encode(const SInt x, const SInt y, const SInt z) const {
-      return libmorton::m3D_e_sLUT<SInt>(x, y, z);
+      return libmorton::m3D_e_sLUT<SInt>(z, x, y);
     // return x + y * chunks_per_dim_ + z * (chunks_per_dim_ * chunks_per_dim_);
   }
 
   inline void Decode(const SInt id, SInt &x, SInt &y, SInt &z) const {
-      libmorton::m3D_d_sLUT(id, x, y, z);
+      libmorton::m3D_d_sLUT(id, z, x, y);
     // x = id % chunks_per_dim_;
     // y = (id / chunks_per_dim_) % chunks_per_dim_;
     // z = id / (chunks_per_dim_ * chunks_per_dim_);
