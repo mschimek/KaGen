@@ -21,7 +21,10 @@
 #include "kagen/generators/grid/grid_3d.h"
 #include "kagen/generators/hyperbolic/hyperbolic.h"
 #include "kagen/generators/kronecker/kronecker.h"
-#include "kagen/generators/rmat/rmat.h"
+
+#ifdef KAGEN_ENABLE_RMAT
+    #include "kagen/generators/rmat/rmat.h"
+#endif
 
 #ifdef KAGEN_CGAL_FOUND
     #include "kagen/generators/geometric/delaunay.h"
@@ -74,8 +77,11 @@ std::unique_ptr<GeneratorFactory> CreateGeneratorFactory(const GeneratorType typ
         case GeneratorType::RHG:
             return std::make_unique<HyperbolicFactory>();
 
+#ifdef KAGEN_ENABLE_RMAT
         case GeneratorType::RMAT:
             return std::make_unique<RMATFactory>();
+
+#endif
     }
 
     __builtin_unreachable();
